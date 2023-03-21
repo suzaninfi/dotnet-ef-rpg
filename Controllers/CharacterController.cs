@@ -24,4 +24,12 @@ public class CharacterController: ControllerBase
         return Ok(characters.FirstOrDefault(character => character.Id == id)); // returns first where id matches
         
     }
+
+    // In this post method, the newCharacter object is sent through the body of the request
+    [HttpPost]
+    public ActionResult<List<Character>> AddCharacter(Character newCharacter)
+    {
+        characters.Add(newCharacter);
+        return Ok(characters);
+    }
 }
