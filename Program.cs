@@ -1,6 +1,7 @@
 global using dotnet_ef_rpg.Models;
 global using dotnet_ef_rpg.Services.CharacterService;
 global using dotnet_ef_rpg.Dtos.Character;
+global using AutoMapper;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // AddScoped creates a new instance of the request service for every request
 builder.Services
     .AddScoped<ICharacterService,
