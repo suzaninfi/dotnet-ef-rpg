@@ -33,4 +33,34 @@ public class CharacterService : ICharacterService
         var character = characters.FirstOrDefault(character => character.Id == id); // returns first where id matches
         return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(character) };
     }
+
+    public async Task<ServiceResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updatedCharacter)
+    {
+        try
+        {
+            var character = characters.FirstOrDefault(c => c.Id == updatedCharacter.Id);
+
+            if (character is null)
+            {
+                throw new Exception($"Character with Id '{updatedCharacter.Id}' not found.");
+            }
+
+            character.Name = updatedCharacter.Name;
+            character.HitPoints = updatedCharacter.HitPoints;
+            character.Strength = updatedCharacter.Strength;
+            character.Defense = updatedCharacter.Defense;
+            character.Intelligence = updatedCharacter.Intelligence;
+            character.Class = updatedCharacter.Class;
+
+            return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(character) };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse<GetCharacterDto>
+            {
+                Success = false,
+                Message = ex.Message
+            };
+        }
+    }
 }
