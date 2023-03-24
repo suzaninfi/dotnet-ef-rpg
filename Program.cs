@@ -1,5 +1,7 @@
 global using dotnet_ef_rpg.Models;
 global using dotnet_ef_rpg.Services.CharacterService;
+global using dotnet_ef_rpg.Dtos.Character;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
