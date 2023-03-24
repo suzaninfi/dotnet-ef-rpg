@@ -15,9 +15,9 @@ public class CharacterController : ControllerBase
     }
 
     [HttpGet("GetAll")] // Short for [HttpGet] and [Route("GetAll")]
-    public ActionResult<List<Character>> Get()
+    public async Task<ActionResult<List<Character>>> Get()
     {
-        return Ok(_characterService.GetAllCharacters()); // sends status code 200 OK
+        return Ok(await _characterService.GetAllCharacters()); // sends status code 200 OK
 
         // Other options (among other s):
         // BadRequest(knight) // 400 status
@@ -25,15 +25,15 @@ public class CharacterController : ControllerBase
     }
 
     [HttpGet("{id:int}")] // id should match parameter of method
-    public ActionResult<Character> GetSingle(int id)
+    public async Task<ActionResult<Character>> GetSingle(int id)
     {
-        return Ok(_characterService.GetCharacterById(id)); // returns first where id matches
+        return Ok(await _characterService.GetCharacterById(id)); // returns first where id matches
     }
 
     // In this post method, the newCharacter object is sent through the body of the request
     [HttpPost]
-    public ActionResult<List<Character>> AddCharacter(Character newCharacter)
+    public async Task<ActionResult<List<Character>>> AddCharacter(Character newCharacter)
     {
-        return Ok(_characterService.AddCharacter(newCharacter));
+        return Ok(await _characterService.AddCharacter(newCharacter));
     }
 }
