@@ -19,7 +19,7 @@ public class CharacterController : ControllerBase
     {
         return Ok(await _characterService.GetAllCharacters()); // sends status code 200 OK
 
-        // Other options (among other s):
+        // Other options (among others):
         // BadRequest(knight) // 400 status
         // NotFound(knight) // 404 status
     }
@@ -47,6 +47,19 @@ public class CharacterController : ControllerBase
             return NotFound(response);
         }
 
-        return Ok(await _characterService.UpdateCharacter(updatedCharacter));
+        return Ok(response);
+    }
+
+
+    [HttpDelete("{id:int}")] // id should match parameter of method
+    public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> DeleteCharacter(int id)
+    {
+        var response = await _characterService.DeleteCharacter(id);
+        if (response.Data is null)
+        {
+            return NotFound(response);
+        }
+
+        return Ok(response);
     }
 }
