@@ -3,7 +3,7 @@
 public class DataContext : DbContext
 {
     public DataContext(DbContextOptions<DataContext> options)
-        : base(options)
+        : base(options) // ? what does base(options) do here
     {
     }
 
