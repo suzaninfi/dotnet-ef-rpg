@@ -4,6 +4,7 @@ global using dotnet_ef_rpg.Dtos.Character;
 global using Microsoft.EntityFrameworkCore;
 global using AutoMapper;
 global using dotnet_ef_rpg.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services
     .AddScoped<ICharacterService,
         CharacterService>(); // dependency injection: use CharacterService class whenever a controller wants to inject an ICharacterService
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 var app = builder.Build();
 
