@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_ef_rpg.Controllers;
 
+[Authorize] // need to be authorized to call these methods
 [ApiController] // attribute, indicates that this is used to serve HTTP API responses
 [Route("api/[controller]")] // attribute, means this controller can be found at api/Character
 public class CharacterController : ControllerBase
@@ -14,6 +16,7 @@ public class CharacterController : ControllerBase
         _characterService = characterService;
     }
 
+    // [AllowAnonymous] // Don't require authorization for this specific method
     [HttpGet("GetAll")] // Short for [HttpGet] and [Route("GetAll")]
     public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
     {
