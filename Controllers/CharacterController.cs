@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_ef_rpg.Controllers;
@@ -20,7 +21,9 @@ public class CharacterController : ControllerBase
     [HttpGet("GetAll")] // Short for [HttpGet] and [Route("GetAll")]
     public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
     {
-        return Ok(await _characterService.GetAllCharacters()); // sends status code 200 OK
+        // get the ID of the user calling the endpoint, so we can only receive characters belonging to them 
+        var id = int.Parse(User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)!.Value);
+        return Ok(await _characterService.GetAllCharacters(id)); // sends status code 200 OK
 
         // Other options (among others):
         // BadRequest(knight) // 400 status
