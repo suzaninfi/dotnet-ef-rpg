@@ -47,7 +47,7 @@ public class CharacterService : ICharacterService
     {
         var dbCharacter =
             await _context.Characters.FirstOrDefaultAsync(character =>
-                character.Id == id); // returns first where id matches
+                character.Id == id && character.User!.Id == GetUserId()); // returns first where id matches and user matches logged in user
         return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(dbCharacter) };
     }
 
@@ -86,7 +86,7 @@ public class CharacterService : ICharacterService
     {
         try
         {
-            var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id);
+            var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == id && c.User!.Id == GetUserId());
 
             if (character is null)
             {
@@ -98,7 +98,11 @@ public class CharacterService : ICharacterService
             await _context.SaveChangesAsync();
 
             return new ServiceResponse<List<GetCharacterDto>>
-                { Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync() };
+            {
+                Data = await _context.Characters
+                    .Where(c => c.User!.Id == GetUserId())
+                    .Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync()
+            };
         }
         catch (Exception ex)
         {
