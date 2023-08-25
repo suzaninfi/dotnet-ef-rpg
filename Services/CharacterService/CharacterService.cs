@@ -1,33 +1,44 @@
-﻿namespace dotnet_ef_rpg.Services.CharacterService;
+﻿using System.Security.Claims;
+
+namespace dotnet_ef_rpg.Services.CharacterService;
 
 public class CharacterService : ICharacterService
 {
     private readonly DataContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly IMapper _mapper;
 
-    public CharacterService(IMapper mapper, DataContext context)
+    public CharacterService(IMapper mapper, DataContext context, IHttpContextAccessor httpContextAccessor)
     {
         _mapper = mapper;
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto newCharacter)
     {
         var character = _mapper.Map<Character>(newCharacter);
+        character.User = await _context.Users.FirstOrDefaultAsync(user => user.Id == GetUserId());
 
         _context.Characters
             .Add(character); // no async (there is an async version, we don't use it because we're not making a db query at this point. We just want to start tracking the new character in the edit state.
         await _context.SaveChangesAsync(); // writes the changes to the db, and generates a new id for the character
         return new ServiceResponse<List<GetCharacterDto>>
-            { Data = await _context.Characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync() };
+        {
+            Data = await _context.Characters
+                .Where(c => c.User!.Id == GetUserId())
+                .Select(c => _mapper.Map<GetCharacterDto>(c))
+                .ToListAsync()
+        };
     }
 
 
-    public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
+    public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
     {
         // only get characters from the DB that are related to the given user
-        var dbCharacters = await _context.Characters.Where(character => character.User!.Id == userId).ToListAsync();
+        var dbCharacters =
+            await _context.Characters.Where(character => character.User!.Id == GetUserId()).ToListAsync();
         return new ServiceResponse<List<GetCharacterDto>>
             { Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList() };
     }
@@ -97,5 +108,11 @@ public class CharacterService : ICharacterService
                 Message = ex.Message
             };
         }
+    }
+
+    // get id of the logged in user
+    private int GetUserId()
+    {
+        return int.Parse(_httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     }
 }

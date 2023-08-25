@@ -35,6 +35,7 @@ builder.Services.AddSwaggerGen(
         config.OperationFilter<SecurityRequirementsOperationFilter>();
     }
 );
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // AddScoped creates a new instance of the request service for every request
