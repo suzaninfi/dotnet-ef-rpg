@@ -47,7 +47,8 @@ public class CharacterService : ICharacterService
     {
         var dbCharacter =
             await _context.Characters.FirstOrDefaultAsync(character =>
-                character.Id == id && character.User!.Id == GetUserId()); // returns first where id matches and user matches logged in user
+                character.Id == id &&
+                character.User!.Id == GetUserId()); // returns first where id matches and user matches logged in user
         return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(dbCharacter) };
     }
 
@@ -55,9 +56,11 @@ public class CharacterService : ICharacterService
     {
         try
         {
-            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
+            var dbCharacter = await _context.Characters
+                .Include(c => c.User) // without this, EF does not include the related object to the character in this case
+                .FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
 
-            if (dbCharacter is null)
+            if (dbCharacter is null || dbCharacter.User!.Id != GetUserId())
             {
                 throw new Exception($"Character with Id '{updatedCharacter.Id}' not found.");
             }
