@@ -1,5 +1,6 @@
 global using dotnet_ef_rpg.Models;
 global using dotnet_ef_rpg.Services.CharacterService;
+global using dotnet_ef_rpg.Services.WeaponService;
 global using dotnet_ef_rpg.Dtos.Character;
 global using Microsoft.EntityFrameworkCore;
 global using AutoMapper;
@@ -43,6 +44,7 @@ builder.Services
     .AddScoped<ICharacterService,
         CharacterService>(); // dependency injection: use CharacterService class whenever a controller wants to inject an ICharacterService
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IWeaponService, WeaponService>();
 // Add this so that you can require authentication for using the controllers or specific controller methods
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
