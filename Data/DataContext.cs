@@ -12,6 +12,8 @@ public class DataContext : DbContext
      * The name will be the name of the corresponding db table
      */
     public DbSet<Character> Characters => Set<Character>();
-    
+
     public DbSet<User> Users => Set<User>();
+
+    public DbSet<Weapon> Weapons => Set<Weapon>();
 }
