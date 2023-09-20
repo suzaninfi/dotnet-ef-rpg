@@ -11,4 +11,5 @@ public class Character
     public RpgClass Class { get; set; } = RpgClass.Knight;
     public Weapon? Weapon { get; set; }
     public User? User { get; set; }
+    public List<Skill>? Skills { get; set; }
 }
