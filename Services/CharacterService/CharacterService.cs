@@ -38,7 +38,10 @@ public class CharacterService : ICharacterService
     {
         // only get characters from the DB that are related to the given user
         var dbCharacters =
-            await _context.Characters.Where(character => character.User!.Id == GetUserId()).ToListAsync();
+            await _context.Characters
+                .Include(character => character.Weapon)
+                .Include(character => character.Skills)
+                .Where(character => character.User!.Id == GetUserId()).ToListAsync();
         return new ServiceResponse<List<GetCharacterDto>>
             { Data = dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList() };
     }
@@ -46,9 +49,13 @@ public class CharacterService : ICharacterService
     public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
     {
         var dbCharacter =
-            await _context.Characters.FirstOrDefaultAsync(character =>
-                character.Id == id &&
-                character.User!.Id == GetUserId()); // returns first where id matches and user matches logged in user
+            await _context.Characters
+                .Include(character => character.Weapon)
+                .Include(character => character.Skills)
+                .FirstOrDefaultAsync(character =>
+                    character.Id == id &&
+                    character.User!.Id ==
+                    GetUserId()); // returns first where id matches and user matches logged in user
         return new ServiceResponse<GetCharacterDto> { Data = _mapper.Map<GetCharacterDto>(dbCharacter) };
     }
 
@@ -57,7 +64,8 @@ public class CharacterService : ICharacterService
         try
         {
             var dbCharacter = await _context.Characters
-                .Include(c => c.User) // without this, EF does not include the related object to the character in this case
+                .Include(c =>
+                    c.User) // without this, EF does not include the related object to the character in this case
                 .FirstOrDefaultAsync(c => c.Id == updatedCharacter.Id);
 
             if (dbCharacter is null || dbCharacter.User!.Id != GetUserId())
@@ -116,6 +124,47 @@ public class CharacterService : ICharacterService
             };
         }
     }
+
+    public async Task<ServiceResponse<GetCharacterDto>> AddCharacterSkill(AddCharacterSkillDto newCharacterSkill)
+    {
+        var response = new ServiceResponse<GetCharacterDto>();
+        try
+        {
+            var character = await _context.Characters
+                .Include(character => character.Weapon)
+                .Include(character =>
+                    character.Skills) // If Skills had additional data, like lists of side effects, we could also include those by adding .thenInclude(...)
+                .FirstOrDefaultAsync(character =>
+                    character.Id == newCharacterSkill.CharacterId && character.User!.Id == GetUserId());
+            if (character is null)
+            {
+                response.Success = false;
+                response.Message = "Character not found";
+                return response;
+            }
+
+            var skill = await _context.Skills.FirstOrDefaultAsync(skill => skill.Id == newCharacterSkill.SkillId);
+
+            if (skill is null)
+            {
+                response.Success = false;
+                response.Message = "Skill not found";
+                return response;
+            }
+
+            character.Skills!.Add(skill);
+            await _context.SaveChangesAsync();
+            response.Data = _mapper.Map<GetCharacterDto>(character);
+        }
+        catch (Exception exception)
+        {
+            response.Success = false;
+            response.Message = exception.Message;
+        }
+
+        return response;
+    }
+
 
     // get id of the logged in user
     private int GetUserId()
