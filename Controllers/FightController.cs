@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using dotnet_ef_rpg.Dtos.Fight;
+using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_ef_rpg.Controllers;
 
@@ -13,5 +14,11 @@ public class FightController : ControllerBase
     public FightController(IFightService fightService)
     {
         _fightService = fightService;
+    }
+
+    [HttpPost("Weapon")]
+    public async Task<ActionResult<ServiceResponse<AttackResultDto>>> WeaponAttack(WeaponAttackDto request)
+    {
+        return Ok(await _fightService.WeaponAttack(request));
     }
 }
